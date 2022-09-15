@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanfz.dao.mapper.SingerMapper">
+
+    <!--多条件统计歌手-->
+    <select id="countSinger" resultType="Long">
+        select count(1)
+        from singer
+        <where>
+            <if test="name != null and name != '' ">
+                name=#{name}
+            </if>
+            and is_deleted=0
+        </where>
+    </select>
+
+    <!--多条件查询歌手-->
+    <select id="getSingers" resultType="com.hanfz.pojo.vo.singer.SingerVO">
+        select id,name,sex,introduction
+        from singer
+        <where>
+            <if test="name != null and name != '' ">
+                name=#{name}
+            </if>
+            and is_deleted=0
+        </where>
+        limit #{current},#{size}
+    </select>
+
+    <!--根据歌手姓名和性别判断歌手是否存在-用于编辑时-->
+    <select id="existSingerEdit" resultType="Integer">
+        select 1
+        from singer
+        where name=#{name}
+          and sex=#{sex}
+        <if test="id != null and id != '' ">
+          and id!=#{id}
+        </if>
+          and is_deleted=0
+    </select>
+
+    <!--根据id集合判断歌手是否存在-->
+    <select id="getSingerNameByIds" resultType="String">
+        select name
+        from singer
+        where id in
+        <foreach collection="singerIds" item="singerId" open="(" close=")" separator=",">
+            #{singerId}
+        </foreach>
+          and is_deleted=0
+    </select>
+
+    <!--查询所有歌手-->
+    <select id="getAllSingers" resultType="com.hanfz.pojo.vo.singer.SingerVO">
+        select id,name
+        from singer
+        where is_deleted=0
+    </select>
+
+    <!--新增歌手-->
+    <insert id="insertSinger">
+        insert into singer(id,name,sex,introduction)
+        values(#{id},#{name},#{sex},#{introduction})
+    </insert>
+
+    <!--更新歌手信息-->
+    <update id="updateSinger">
+        update singer
+        set name=#{name},sex=#{sex},introduction=#{introduction}
+        where id=#{id}
+            and is_deleted=0
+    </update>
+
+    <!--删除歌手-->
+    <update id="deleteSingers">
+        update singer
+        set is_deleted=1
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+            and is_deleted=0
+    </update>
+
+</mapper>

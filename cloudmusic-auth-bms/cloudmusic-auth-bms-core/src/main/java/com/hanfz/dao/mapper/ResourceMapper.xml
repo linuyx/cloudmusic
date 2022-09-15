@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanfz.dao.mapper.ResourceMapper">
+
+    <!--判断角色集合是否有当前资源权限-->
+    <select id="existAuthorize" resultType="Integer">
+        select 1
+        from resource
+        inner join role_resource
+            on role_resource.resource_id=resource.id
+            and role_resource.is_deleted=0
+        where role_resource.role_id in
+        <foreach collection="roleIds" item="roleId" open="(" close=")" separator=",">
+          #{roleId}
+        </foreach>
+          and resource.url=#{url}
+          and resource.method=#{method}
+          and resource.is_deleted=0
+        limit 1
+    </select>
+
+    <!--根据资源url和method判断资源是否存在-用于编辑时-->
+    <select id="existResourceEdit" resultType="Integer">
+        select 1
+        from resource
+        where url=#{url}
+          and method=#{method}
+        <if test="id != null and id != '' ">
+          and id!=#{id}
+        </if>
+          and is_deleted=0
+    </select>
+
+    <!--多条件查询资源sql片段-->
+    <sql id="getResourcesSql">
+        from resource
+        left join role_resource
+            on role_resource.resource_id=resource.id
+            and role_resource.is_deleted=0
+        left join role
+            on role.id=role_resource.role_id
+            and role.is_deleted=0
+        <where>
+            <if test="url != null and url != '' ">
+                url like concat('%',#{url},'%')
+            </if>
+            <if test="method != null and method != '' ">
+                and method=#{method}
+            </if>
+            <if test="name != null and name != '' ">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="roleId != null">
+                and role.id=#{roleId}
+            </if>
+            and resource.is_deleted=0
+        </where>
+    </sql>
+
+    <!--多条件统计资源总数-->
+    <select id="countResource" resultType="Long">
+        select count(1)
+        <include refid="getResourcesSql"></include>
+    </select>
+
+    <!--多条件查询资源-->
+    <select id="getResources" resultType="com.hanfz.pojo.vo.resource.ResourceVO">
+        select resource.id,resource.url,resource.method,
+        resource.name,role.name role
+        <include refid="getResourcesSql"></include>
+        limit #{current},#{size}
+    </select>
+
+    <!--查询所有资源-->
+    <select id="getAllResources" resultType="com.hanfz.pojo.vo.resource.ResourceBaseVO">
+        select id,name
+        from resource
+        where is_deleted=0
+    </select>
+
+    <!--根据角色id查询资源-->
+    <select id="getResourcesByRoleId" resultType="com.hanfz.pojo.vo.resource.ResourceBaseVO">
+        select resource.id,resource.name
+        from resource
+        inner join role_resource on role_resource.resource_id=resource.id
+            and role_resource.role_id=#{roleId}
+        where resource.is_deleted=0
+    </select>
+
+    <!--根据资源id集合统计资源-用于判断集合中是否有资源不存在-->
+    <select id="countResourceByIds" resultType="Integer">
+        select count(1)
+        from resource
+        where id in
+        <foreach collection="resourceIds" item="resourceId" open="(" close=")" separator=",">
+            #{resourceId}
+        </foreach>
+    </select>
+
+    <!--添加资源-->
+    <insert id="insertResource">
+        insert into resource(id,url,method,name)
+        values(#{id},#{url},#{method},#{name})
+    </insert>
+
+    <!--修改资源-->
+    <update id="updateResource">
+        update resource
+        set url=#{url},method=#{method},name=#{name}
+        where id=#{id}
+            and is_deleted=0
+    </update>
+
+    <!--删除资源-->
+    <update id="deleteResources">
+        update resource
+        set is_deleted=1
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+          #{id}
+        </foreach>
+          and is_deleted=0
+    </update>
+
+</mapper>

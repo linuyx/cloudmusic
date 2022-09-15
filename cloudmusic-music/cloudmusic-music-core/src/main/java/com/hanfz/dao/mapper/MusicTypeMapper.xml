@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanfz.dao.mapper.MusicTypeMapper">
+
+    <!--多条件统计音乐类型-->
+    <select id="countMusicType" resultType="Long">
+        select count(1)
+        from music_type
+        <where>
+            <if test="name != null and name != '' ">
+                name=#{name}
+            </if>
+            and is_deleted=0
+        </where>
+    </select>
+
+    <!--多条件查询音乐类型-->
+    <select id="getMusicTypes" resultType="com.hanfz.pojo.vo.musictype.MusicTypeVO">
+        select id,name
+        from music_type
+        <where>
+            <if test="name != null and name !='' ">
+                name=#{name}
+            </if>
+            and is_deleted=0
+        </where>
+        limit #{current},#{size}
+    </select>
+
+    <!--根据音乐类型名称判断音乐类型是否存在-用于编辑时-->
+    <select id="existMusicTypeEdit" resultType="Integer">
+        select 1
+        from music_type
+        where name=#{name}
+        <if test="id != null and id != '' ">
+          and id!=#{id}
+        </if>
+          and is_deleted=0
+    </select>
+
+    <!--根据id判断音乐类型是否存在-->
+    <select id="existTypeById" resultType="Integer">
+        select 1
+        from music_type
+        where id=#{typeId}
+          and is_deleted=0
+        limit 1
+    </select>
+
+    <!--查询所有音乐类型-->
+    <select id="getAllMusicType" resultType="com.hanfz.pojo.vo.musictype.MusicTypeVO">
+        select id,name
+        from music_type
+        where is_deleted=0
+    </select>
+
+    <!--新增音乐类型-->
+    <update id="insertMusicType">
+        insert into music_type(id,name)
+        values(#{id},#{name})
+    </update>
+
+    <!--更新音乐类型-->
+    <update id="updateMusicType">
+        update music_type
+        set name=#{name}
+        where id=#{id}
+            and is_deleted=0
+    </update>
+
+    <!--删除音乐类型-->
+    <update id="deleteMusicTypes">
+        update music_type
+        set is_deleted=1
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+          and is_deleted=0
+    </update>
+
+</mapper>

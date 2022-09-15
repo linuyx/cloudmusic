@@ -1,0 +1,45 @@
+server:
+  port: 9000
+
+#自定义业务配置
+custom:
+  snowflake: #雪花算法配置
+    workerId: 1 #机器id
+    datacenterId: 1 #数据中心id
+
+  ali: #ali配置
+    oss: #oss配置
+      region: oss-cn-hangzhou
+      accessKeyId: LTAI5tAPFvnpMusKEL5WhPmH
+      accessKeySecret: fUkBxhnWgMpieRNvUl4Ah1CjeMQKB0
+      bucket: cloudmusic-oss
+
+  shortMessage: #短信配置
+    secretId: AKIDKWUEj02pNgiU0GG3asxnOkrjMjqhKhoe
+    secretKey: d07yYsyqUt3ye5IFxQecLp43nGTRAfvw
+    sdkAppId: 1400664257
+    signName: 小云音公众号
+    templateId: 1370886
+
+spring:
+  redis:
+    host: linuyx.com
+    port: 6379
+    password: 3bf24a76
+
+dubbo:
+  registry:
+    address: nacos://localhost:8848
+  scan:
+    base-packages: com.hanfz.controller
+  protocol:
+    name: dubbo
+    port: 29000
+  consumer:
+    check: false
+  provider:
+    validation: true
+
+logging:
+  level:
+    com.hanfz: debug #日志级别

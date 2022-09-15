@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanfz.dao.mapper.MusicSingerMapper">
+
+    <!--新增音乐、歌手对应关系-->
+    <insert id="insertMusicSinger">
+        insert into music_singer(id,music_id,singer_id)
+        values
+        <foreach collection="musicSingerEntitys" item="entity" separator=",">
+            (#{entity.id},#{entity.musicId},#{entity.singerId})
+        </foreach>
+    </insert>
+
+    <!--根据音乐id集合删除音乐、歌手对应关系-->
+    <delete id="deleteMusicSingerByMusicIds">
+        delete from music_singer
+        where music_id in
+        <foreach collection="musicIds" item="musicId" open="(" close=")" separator=",">
+            #{musicId}
+        </foreach>
+    </delete>
+
+    <!--根据歌手id集合判断是否有音乐引用要删除的歌手-->
+    <select id="existMusicSingerBySingerIds" resultType="Integer">
+        select 1
+        from music_singer
+        where singer_id in
+        <foreach collection="singerIds" item="singerId" open="(" close=")" separator=",">
+            #{singerId}
+        </foreach>
+        limit 1
+    </select>
+</mapper>

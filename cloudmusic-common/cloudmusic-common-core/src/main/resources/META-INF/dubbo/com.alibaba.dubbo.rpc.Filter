@@ -1,0 +1,1 @@
+customDubboExceptionFilter=com.hanfz.filter.CustomDubboExceptionFilter

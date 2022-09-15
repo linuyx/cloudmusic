@@ -1,0 +1,3 @@
+dubbo:
+  provider:
+    filter: customDubboExceptionFilter,-exception

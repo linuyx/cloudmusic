@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanfz.dao.mapper.RoleMapper">
+
+    <!--根据角色名称查询角色id-->
+    <select id="getIdByName" resultType="Long">
+        select id
+        from role
+        where name=#{name}
+            and is_deleted=0
+    </select>
+
+    <!--根据角色名称集合查询角色id-->
+    <select id="getIdByNames" resultType="Long">
+        select id
+        from role
+        where name in
+        <foreach collection="names" item="name" open="(" close=")" separator=",">
+          #{name}
+        </foreach>
+          and is_deleted=0
+    </select>
+
+    <!--根据id判断角色是否存在-->
+    <select id="existRoleById" resultType="Integer">
+        select 1
+        from role
+        where id=#{id}
+            and is_deleted=0
+    </select>
+
+    <!--判断集合中是否存在超级管理员-->
+    <select id="existSuperAdmin" resultType="Integer">
+        select 1
+        from role
+        where id in
+        <foreach collection="roleIds" item="roleId" open="(" close=")" separator=",">
+            #{roleId}
+        </foreach>
+            and name=#{superAdminName}
+    </select>
+
+    <!--根据名称判断是否存在角色-用于编辑时-->
+    <select id="existRoleEdit" resultType="Integer">
+        select 1
+        from role
+        where
+          name=#{name}
+        <if test="id != null and id != '' ">
+          and id!=#{id}
+        </if>
+          and is_deleted=0
+    </select>
+
+    <!--查询所有角色-->
+    <select id="getAllRoles" resultType="com.hanfz.pojo.vo.role.RoleVO">
+        select id,name
+        from role
+        where is_deleted=0
+    </select>
+
+    <!--多条件统计角色-->
+    <select id="countRole" resultType="Long">
+        select count(1)
+        from role
+        <where>
+            <if test="name != null and name != '' ">
+                name=#{name}
+            </if>
+            and is_deleted=0
+        </where>
+    </select>
+
+    <!--多条件查询角色-->
+    <select id="getRoles" resultType="com.hanfz.pojo.vo.role.RoleVO">
+        select id,name
+        from role
+        <where>
+            <if test="name != null and name != '' ">
+                name=#{name}
+            </if>
+            and is_deleted=0
+        </where>
+        limit #{current},#{size}
+    </select>
+
+    <!--新增角色-->
+    <insert id="insertRole">
+        insert into role(id,name)
+        values(#{id},#{name})
+    </insert>
+
+    <!--更新角色-->
+    <update id="updateRole">
+        update role
+        set name=#{name}
+        where id=#{id}
+            and is_deleted=0
+    </update>
+
+    <!--删除角色-->
+    <update id="deleteRoles">
+        update role
+        set is_deleted=1
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+          #{id}
+        </foreach>
+          and is_deleted=0
+    </update>
+
+</mapper>

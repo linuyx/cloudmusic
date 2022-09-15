@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: music #服务名
+  profiles:
+    active: dev #选择环境
+
+

@@ -1,0 +1,44 @@
+server:
+  port: 7020
+
+#自定义业务配置
+custom:
+  redisson: #redisson配置
+    address: redis://linuyx.com:6379
+    password: 3bf24a76
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cloudmusic_user?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    password: 3bf24a76
+
+  redis:
+    host: linuyx.com
+    port: 6379
+    password: 3bf24a76
+    database: 0
+
+dubbo:
+  registry:
+    address: nacos://localhost:8848
+  scan:
+    base-packages: com.hanfz.controller
+  protocol:
+    name: dubbo
+    port: 27020
+  consumer:
+    check: false
+  provider:
+    validation: true
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #控制台打印SQL语句
+    map-underscore-to-camel-case: true #开启驼峰命名
+
+logging:
+  level:
+    com.hanfz: debug #日志级别

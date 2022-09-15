@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanfz.dao.mapper.RoleResourceMapper">
+
+    <!--根据资源id获取角色、资源映射-->
+    <select id="getRoleResourceByResourceId" resultType="com.hanfz.pojo.entity.RoleResourceEntity">
+        select id,role_id,resource_id
+        from role_resource
+        where resource_id=#{resourceId}
+            and is_deleted=0
+    </select>
+
+    <!--新增角色、资源映射-->
+    <insert id="insertRoleResource">
+        insert into role_resource(id,role_id,resource_id)
+        values(#{id},#{roleId},#{resourceId})
+    </insert>
+
+    <!--新增角色、资源映射集合-->
+    <insert id="insertRoleResources">
+        insert into role_resource(id,role_id,resource_id)
+        values
+        <foreach collection="otmParams" item="otmParam" separator=",">
+            (#{otmParam.id},#{otmParam.oneId},#{otmParam.manyId})
+        </foreach>
+    </insert>
+
+    <!--更新角色、资源映射-->
+    <update id="updateRoleResource">
+        update role_resource
+        set role_id=#{roleId}, resource_id=#{resourceId}
+        where id=#{id}
+    </update>
+
+    <!--根据角色id集合删除角色、资源对应关系-删除角色时删除角色、资源对应关系-->
+    <delete id="deleteRoleResourceByRoleIds">
+        delete from
+        role_resource
+        where role_id in
+        <foreach collection="roleIds" item="roleId" open="(" close=")" separator=",">
+            #{roleId}
+        </foreach>
+    </delete>
+
+    <!--根据资源id集合删除角色、资源对应关系-删除资源时删除角色、资源对应关系-->
+    <delete id="deleteRoleResourceByResourceIds">
+        delete from
+        role_resource
+        where resource_id in
+        <foreach collection="resourceIds" item="resourceId" open="(" close=")" separator=",">
+            #{resourceId}
+        </foreach>
+    </delete>
+
+</mapper>

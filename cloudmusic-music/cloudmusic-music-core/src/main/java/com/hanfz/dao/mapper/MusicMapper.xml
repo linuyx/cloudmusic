@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanfz.dao.mapper.MusicMapper">
+
+    <!--多条件查询音乐sql片段-->
+    <sql id="getMusicsSql">
+        from music_type
+        inner join music on music.type_id=music_type.id
+        <if test="name != null and name != '' ">
+          and music.name like concat(#{name},'%')
+        </if>
+          and music.is_deleted=0
+        <if test="singerId != null or singer != null">
+            inner join music_singer on music_singer.music_id=music.id
+                and music_singer.is_deleted=0
+            inner join singer on singer.id=music_singer.singer_id
+            <if test="singerId != null">
+                and singer.id=#{singerId}
+            </if>
+            <if test="singerId == null and singer != null and singer != '' ">
+                and singer.name=#{singer}
+            </if>
+            and singer.is_deleted=0
+        </if>
+        <where>
+        <if test="typeId != null">
+             music_type.id=#{typeId}
+        </if>
+        <if test="typeId == null and type != null and type != '' ">
+             music_type.name=#{type}
+        </if>
+          and music_type.is_deleted=0
+        </where>
+    </sql>
+
+    <!--统计多条件分页查询音乐总数-->
+    <select id="countMusic" resultType="Long">
+        select count(1)
+        <include refid="getMusicsSql"></include>
+    </select>
+
+    <!--多条件分页查询音乐-->
+    <select id="getMusics" resultType="com.hanfz.pojo.vo.music.MusicVO">
+        select music.id,music.name,music.image_url,music.music_url,
+            music.lrc_url,music.singer as singer,music_type.name as type
+        <include refid="getMusicsSql"></include>
+        order by music.id desc
+        limit #{current},#{size}
+    </select>
+
+    <!--根据音乐名称和歌手id判断音乐是否存在-用于编辑时-->
+    <select id="existMusicEdit" resultType="Integer">
+        select count(1)
+        from music
+        inner join music_singer on music_singer.music_id=music.id
+            and music_singer.is_deleted=0
+        inner join singer on singer.id=music_singer.singer_id
+            and singer_id in
+        <foreach collection="singerIds" item="singerId" open="(" close=")" separator=",">
+            #{singerId}
+        </foreach>
+            and singer.is_deleted=0
+        where music.name=#{name}
+        <if test="id != null and id != '' ">
+          and music.id!=#{id}
+        </if>
+          and music.is_deleted=0
+    </select>
+
+    <!--新增音乐-->
+    <insert id="insertMusic">
+        insert into music(id,name,singer,image_url,music_url,lrc_url,type_id)
+        values(#{id},#{name},#{singer},#{imageUrl},#{musicUrl},#{lrcUrl},#{typeId})
+    </insert>
+
+    <!--更新音乐-->
+    <update id="updateMusic">
+        update music
+        set name=#{name},singer=#{singer},image_url=#{imageUrl},
+            music_url=#{musicUrl},lrc_url=#{lrcUrl}, type_id=#{typeId}
+        where id=#{id}
+            and is_deleted=0
+    </update>
+
+    <!--删除音乐-->
+    <update id="deleteMusics">
+        update music
+        set is_deleted=1
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator="," >
+            #{id}
+        </foreach>
+          and is_deleted=0
+    </update>
+
+    <!--判断是否有音乐引用了要删除的音乐类型-->
+    <select id="existMusicByMusicTypeIds" resultType="Integer">
+        select 1
+        from music
+        where type_id in
+        <foreach collection="musicTypeIds" item="musicTypeId" open="(" close=")" separator=",">
+            #{musicTypeId}
+        </foreach>
+            and is_deleted=0
+        limit 1
+    </select>
+
+</mapper>

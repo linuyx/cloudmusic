@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    nacos:
+      server-addr: localhost:8848 #注册中心地址
+      discovery:
+        namespace: a6b4f84f-26d6-4d67-9958-69bd830bc8eb #命名空间
+        group: DEV_GROUP #所在组
+      config:
+        namespace: a6b4f84f-26d6-4d67-9958-69bd830bc8eb
+        group: DEV_GROUP
+        file-extension: yaml #文件后缀

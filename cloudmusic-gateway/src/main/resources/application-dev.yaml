@@ -1,0 +1,59 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      globalcors: #全局跨域处理
+        add-to-simple-url-handler-mapping: true #解决options请求被拦截问题
+        cors-configurations:
+          '[/**]': #拦截所有请求
+            allowedOriginPatterns: "*" #允许哪些网站的跨域请求
+            allowedMethods: #允许跨域请求的请求方式
+              - "GET"
+              - "POST"
+              - "PUT"
+              - "DELETE"
+              - "OPTIONS"
+            allowedHeaders: "*" #允许在请求中携带头信息
+            allowCredentials: true #允许携带cookie
+            maxAge: 360000 #跨域检测有效期
+      routes:
+        - id: auth-bms #请求auth-bms服务
+          uri: lb://auth-bms
+          predicates:
+            - Path=/*/auth-bms/**
+
+        - id: cms #请求cms服务
+          uri: lb://cms
+          predicates:
+            - Path=/*/cms/**
+
+        - id: musics #请求music服务
+          uri: lb://music
+          predicates:
+            - Path=/*/musics/**
+
+        - id: user #请求user服务
+          uri: lb://user
+          predicates:
+            - Path=/*/users/**
+      default-filters:
+        - StripPrefix=1
+
+dubbo:
+  registry:
+    address: nacos://localhost:8848
+  scan:
+    base-packages: com.hanfz.filter
+  protocol:
+    name: dubbo
+    port: 28080
+  consumer:
+    check: false
+  provider:
+    validation: true
+
+logging:
+  level:
+    com.hanfz: debug #日志级别
